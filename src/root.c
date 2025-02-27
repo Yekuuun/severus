@@ -73,6 +73,12 @@ static VOID ClearConsole() {
  * Start shell program.
  */
 VOID RunShell(){
+    PCOMMANDHISTORY pHistory = InitializeHistory(MAX_HISTORY);
+    if(pHistory == NULL){
+        printf("[!] Error initializing SEVERUS.\n");
+        return;
+    }
+
     ClearConsole();
     CHAR cBuffer[MAX_TOKENS_LEN] = {0};
     
@@ -88,14 +94,30 @@ VOID RunShell(){
         printf("$ ");
 
         if(fgets(cBuffer, sizeof(cBuffer), stdin) != NULL){
-            printf("%s", cBuffer);
+            cBuffer[strcspn(cBuffer, "\n")] = '\0';
+
+            //base builtin.
+            if(strcmp(cBuffer, "exit") == 0)
+                break;
+            
+            if(strcmp(cBuffer, "history") == 0){
+                ShowHistory(pHistory);
+                continue;
+            }
+
+            if(strcmp(cBuffer, "cls") == 0){
+                ClearConsole();
+            }
+            //-------------------------------
+
+            AddToHistory(pHistory, cBuffer);
             Sleep(1);
         }
         else {
-            printf("[$] ENDING severus...");
             KEEP_RUNNING = 0;
         }
     }
     
+    FreeHistory(pHistory);
     return;
 }

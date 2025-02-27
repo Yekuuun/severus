@@ -1,0 +1,140 @@
+/**
+ * Author : Yekuuun
+ * Github : https://github.com/yekuuun
+ * 
+ * Note : manage all history logic.
+ */
+
+#include "history.h"
+
+/**
+ * Initialize command history.
+ */
+PCOMMANDHISTORY InitializeHistory(IN INT maxSize){
+    PCOMMANDHISTORY pHistory = (PCOMMANDHISTORY)malloc(sizeof(COMMANDSHISTORY));
+    if(pHistory == NULL)
+        return NULL;
+    
+    pHistory->head = pHistory->tail = pHistory->current = NULL;
+    pHistory->size = 0;
+    pHistory->maxSize = maxSize;
+
+    return pHistory;
+}
+
+/**
+ * Add command to history.
+ */
+VOID AddToHistory(IN PCOMMANDHISTORY pHistory, IN LPCSTR pCmd){
+    if(pHistory == NULL)
+        return;
+    
+    PHISTORYNODE newNode = (PHISTORYNODE)malloc(sizeof(HISTORYNODE));
+    if(newNode == NULL)
+        return;
+    
+    newNode->command = strdup(pCmd);
+    newNode->next = newNode->prev = NULL;
+
+    if(pHistory->size == 0){
+        pHistory->head = pHistory->tail = newNode;
+        newNode->next = newNode->prev = newNode;
+    }
+    else {
+        newNode->prev = pHistory->tail;
+        newNode->next = pHistory->head;
+        
+        pHistory->tail->next = newNode;
+        pHistory->head->prev = newNode;
+        pHistory->tail = newNode;
+    }
+
+    if(pHistory->size < pHistory->maxSize){
+        pHistory->size++;
+    }
+    else {
+        PHISTORYNODE oldHead = pHistory->head;
+        pHistory->head = oldHead->next;
+        pHistory->head->prev = pHistory->tail;
+        pHistory->tail->next = pHistory->head;
+
+        free(oldHead->command);
+        free(oldHead);
+    }
+
+    pHistory->current = NULL;
+}
+
+/**
+ * Navigate up.
+ */
+static LPCSTR HistoryUp(IN PCOMMANDHISTORY pHistory){
+    if(pHistory->size == 0)
+        return NULL;
+    
+    if(pHistory->current == NULL){
+        pHistory->current = pHistory->tail;
+    }
+    else {
+        pHistory->current = pHistory->current->prev;
+    }
+
+    return pHistory->current->command;
+}
+
+/**
+ * Navigate down
+ */
+static LPCSTR HistoryDown(IN PCOMMANDHISTORY pHistory){
+    if(pHistory->size == 0 || pHistory->current == NULL)
+        return NULL;
+    
+    pHistory->current = pHistory->current->next;
+
+    if(pHistory->current == pHistory->head){
+        pHistory->current = NULL;
+        return "";
+    }
+
+    return pHistory->current->command;
+}
+
+/**
+ * Free struct.
+ */
+VOID FreeHistory(IN PCOMMANDHISTORY pHistory){
+    if (pHistory == NULL) return;
+
+    if (pHistory->size > 0) {
+        PHISTORYNODE current = pHistory->head;
+        PHISTORYNODE next;
+
+        // Briser la boucle circulaire avant d’itérer
+        pHistory->tail->next = NULL;
+
+        while (current) {
+            next = current->next;
+            free(current->command);
+            free(current);
+            current = next;
+        }
+    }
+
+    free(pHistory);
+}
+
+/**
+ * Show inner history commands.
+ */
+VOID ShowHistory(IN PCOMMANDHISTORY pHistory){
+    if (pHistory == NULL || pHistory->size == 0)
+        return;
+
+    PHISTORYNODE current = pHistory->head;
+    INT index = 1;
+
+    do {
+        printf("[*] %s\n", current->command);
+        current = current->next;
+    } while (current != pHistory->head);
+}
