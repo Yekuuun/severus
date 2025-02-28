@@ -99,10 +99,14 @@ VOID ShowHistory(){
         return;
 
     PHISTORYNODE current = pHistory->head;
-    INT index = 1;
+    DWORD index = 1;
 
+    printf("\n Command history : \n");
+    printf(" ------- -------\n");
     do {
-        printf("[*] %s\n", current->command);
+        printf("  %d %s\n", index, current->command);
         current = current->next;
+        index++;
     } while (current != pHistory->head);
+    printf("\n");
 }

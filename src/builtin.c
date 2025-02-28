@@ -7,7 +7,7 @@
 
 #include "builtin.h"
 
-static PBUILTINS builtins[HASH_TABLE_BUILTINS_SIZE];
+static PBUILTINS builtins[HASH_TABLE_BUILTINS_SIZE] = {0};
 static CHAR previousDir[MAX_PATH] = "";
 
 //---------BUILTIN FUNCTIONS------------
@@ -16,7 +16,9 @@ static CHAR previousDir[MAX_PATH] = "";
  * Display current DIR path.
  */
 VOID CustomPWD(){
-    LPSTR lpPath[MAX_PATH] = {0};
+    LPSTR lpPath = (LPSTR)malloc(MAX_PATH * sizeof(char));
+    if(lpPath == NULL)
+        return;
 
     DWORD dwPath = GetCurrentDirectoryA(MAX_PATH, lpPath);
     if(dwPath != 0)
@@ -27,7 +29,7 @@ VOID CustomPWD(){
  * Check path validity.
  */
 static BOOL IsValidPath(IN CHAR *cPath){
-    INT len = strlen(cPath);
+    SIZE_T len = strlen(cPath);
     if(len == 0 || cPath[0] == '\0')
         return FALSE; 
     
@@ -184,12 +186,11 @@ BOOL isBuiltin(IN CHAR *cStr){
  * Initialize builtins commands.
  */
 VOID InitBuiltins(){
-    RtlSecureZeroMemory((PVOID)builtins, sizeof(builtins));
-
     AddBuiltin("clean", ClearConsole, builtins);
     AddBuiltin("exit", ExitSeverus, builtins);
     AddBuiltin("history", ShowHistory, builtins);
     AddBuiltin("pwd", CustomPWD, builtins);
     AddBuiltin("cd", Cd, builtins);
 }
+
 
