@@ -8,6 +8,7 @@
 #include "builtin.h"
 
 static PBUILTINS builtins[HASH_TABLE_BUILTINS_SIZE];
+static CHAR previousDir[MAX_PATH] = "";
 
 //---------BUILTIN FUNCTIONS------------
 
@@ -47,11 +48,46 @@ static BOOL IsValidPath(IN CHAR *cPath){
 /**
  * Change current directory.
  */
-VOID Cd(IN CHAR *cPath){
-    if(!IsValidPath(cPath) || !SetCurrentDirectoryA((LPCSTR)cPath)){
-        printf("[!] Path incorrect.\n");
+VOID Cd(IN CHAR **args){
+    CHAR cNewPath[MAX_PATH] = {0};
+    CHAR currentDir[MAX_PATH] = {0};
+
+    if (!GetCurrentDirectoryA(MAX_PATH, currentDir))
+        return;
+
+    if (args[1] == NULL) {
+        CHAR *home = getenv("USERPROFILE");
+        if (!home) 
+            return;
+        
+        strncpy(cNewPath, home, MAX_PATH);
+        cNewPath[MAX_PATH - 1] = '\0';
+    } 
+    else if (strcmp(args[1], "..") == 0) {
+        CHAR parentDir[MAX_PATH] = {0};
+        strncpy(parentDir, currentDir, MAX_PATH);
+        parentDir[MAX_PATH - 1] = '\0';
+
+        CHAR *lastSlash = strrchr(parentDir, '\\');
+        if (lastSlash) {
+            *lastSlash = '\0';
+        }
+        strncpy(cNewPath, parentDir, MAX_PATH);
+    } 
+    else {
+        if (!GetFullPathNameA(args[1], MAX_PATH, cNewPath, NULL)) {
+            printf("[!] Error resolving path '%s'.\n", args[1]);
+            return;
+        }
+    }
+
+    if (IsValidPath(cNewPath) || !SetCurrentDirectoryA(cNewPath)) {
+        printf("[!] Incorrect path...\n");
         return;
     }
+
+    strncpy(previousDir, currentDir, MAX_PATH);
+    previousDir[MAX_PATH - 1] = '\0';
 }
 
 
