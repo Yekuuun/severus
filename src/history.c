@@ -7,11 +7,13 @@
 
 #include "history.h"
 
+static PCOMMANDHISTORY pHistory = NULL;
+
 /**
  * Initialize command history.
  */
 PCOMMANDHISTORY InitializeHistory(IN INT maxSize){
-    PCOMMANDHISTORY pHistory = (PCOMMANDHISTORY)malloc(sizeof(COMMANDSHISTORY));
+    pHistory = (PCOMMANDHISTORY)malloc(sizeof(COMMANDSHISTORY));
     if(pHistory == NULL)
         return NULL;
     
@@ -66,40 +68,6 @@ VOID AddToHistory(IN PCOMMANDHISTORY pHistory, IN LPCSTR pCmd){
 }
 
 /**
- * Navigate up.
- */
-static LPCSTR HistoryUp(IN PCOMMANDHISTORY pHistory){
-    if(pHistory->size == 0)
-        return NULL;
-    
-    if(pHistory->current == NULL){
-        pHistory->current = pHistory->tail;
-    }
-    else {
-        pHistory->current = pHistory->current->prev;
-    }
-
-    return pHistory->current->command;
-}
-
-/**
- * Navigate down
- */
-static LPCSTR HistoryDown(IN PCOMMANDHISTORY pHistory){
-    if(pHistory->size == 0 || pHistory->current == NULL)
-        return NULL;
-    
-    pHistory->current = pHistory->current->next;
-
-    if(pHistory->current == pHistory->head){
-        pHistory->current = NULL;
-        return "";
-    }
-
-    return pHistory->current->command;
-}
-
-/**
  * Free struct.
  */
 VOID FreeHistory(IN PCOMMANDHISTORY pHistory){
@@ -126,7 +94,7 @@ VOID FreeHistory(IN PCOMMANDHISTORY pHistory){
 /**
  * Show inner history commands.
  */
-VOID ShowHistory(IN PCOMMANDHISTORY pHistory){
+VOID ShowHistory(){
     if (pHistory == NULL || pHistory->size == 0)
         return;
 

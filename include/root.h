@@ -1,6 +1,5 @@
 #pragma once
-#include "global.h"
-#include "history.h"
+#include "builtin.h"
 
 #define MAX_TOKENS_LEN 100
 

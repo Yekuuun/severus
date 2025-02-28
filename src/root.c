@@ -39,35 +39,6 @@ static VOID DisplayShellHeader(){
     DisplayCurrentDir();
 }
 
-/**
- * Clear console & set cursor to begin of the window.
- */
-static VOID ClearConsole() {
-    HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hStdOut == NULL)
-        return;
-
-    DWORD dwMode = 0;
-    if (!GetConsoleMode(hStdOut, &dwMode))
-        return;
-
-    const DWORD dwOriginalMode = dwMode;
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-    if (!SetConsoleMode(hStdOut, dwMode))
-        return;
-
-    DWORD dwWritten = 0;
-    PCWSTR pwSeq = L"\x1b[2J\x1b[H";  // Efface et remet le curseur en haut
-
-    if (!WriteConsoleW(hStdOut, pwSeq, (DWORD)wcslen(pwSeq), &dwWritten, NULL)) {
-        SetConsoleMode(hStdOut, dwOriginalMode);
-        return;
-    }
-
-    SetConsoleMode(hStdOut, dwOriginalMode);
-}
-
 
 /**
  * Start shell program.
@@ -79,13 +50,15 @@ VOID RunShell(){
         return;
     }
 
+    InitBuiltins();
+
     ClearConsole();
     CHAR cBuffer[MAX_TOKENS_LEN] = {0};
     
     //setting up listener.
     if(!SetConsoleCtrlHandler(HandleCtrlC, TRUE)){
-        printf("[!] Error setting up event listener. \n");
-        exit(0);
+        FreeHistory(pHistory);
+        ExitSeverus();
     }
 
     //looping.
@@ -96,20 +69,25 @@ VOID RunShell(){
         if(fgets(cBuffer, sizeof(cBuffer), stdin) != NULL){
             cBuffer[strcspn(cBuffer, "\n")] = '\0';
 
-            //base builtin.
-            if(strcmp(cBuffer, "exit") == 0)
-                break;
-            
-            if(strcmp(cBuffer, "history") == 0){
-                ShowHistory(pHistory);
-                continue;
+            CHAR *args[MAX_TOKENS_LEN] = {0};
+            CHAR *token = strtok(cBuffer, " ");
+            if(!token) continue;
+
+            args[0] = token;
+            DWORD i = 1;
+            while ((token = strtok(NULL, " ")) && i < MAX_TOKENS_LEN - 1) {
+                args[i++] = token;
+            }
+            args[i] = NULL;
+
+            if(isBuiltin(args[0])){
+                ExecBuiltin(args);
+            }
+            else {
+                printf("%s\n", args[0]);
             }
 
-            if(strcmp(cBuffer, "cls") == 0){
-                ClearConsole();
-            }
             //-------------------------------
-
             AddToHistory(pHistory, cBuffer);
             Sleep(1);
         }
