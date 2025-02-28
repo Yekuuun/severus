@@ -15,4 +15,7 @@ VOID InitBuiltins();
 VOID ExitSeverus();
 VOID ExecBuiltin(IN CHAR **args);
 BOOL isBuiltin(IN CHAR *cStr);
+
+//builtins
 VOID ClearConsole();
+VOID CustomPWD();

@@ -10,24 +10,13 @@ static BOOL WINAPI HandleCtrlC(IN DWORD dwType){
 }
 
 /**
- * Displaying current DIR.
- */
-static VOID DisplayCurrentDir(){
-    LPSTR lpPath[MAX_PATH] = {0};
-
-    DWORD dwPath = GetCurrentDirectoryA(MAX_PATH, lpPath);
-    if(dwPath != 0)
-        printf("%s\n", lpPath);
-}
-
-/**
  * Display current username.
  */
 static VOID DisplayUsername(){
     LPSTR lpUsername[256] = {0};
     DWORD dwUsername = sizeof(lpUsername);
 
-    if(GetUserNameA(lpUsername, &dwUsername))
+    if(GetUserNameA(lpUsername, (LPDWORD)&dwUsername))
         printf("%s~", lpUsername);
 }
 
@@ -36,7 +25,7 @@ static VOID DisplayUsername(){
  */
 static VOID DisplayShellHeader(){
     DisplayUsername();
-    DisplayCurrentDir();
+    CustomPWD();
 }
 
 

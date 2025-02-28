@@ -9,6 +9,51 @@
 
 static PBUILTINS builtins[HASH_TABLE_BUILTINS_SIZE];
 
+//---------BUILTIN FUNCTIONS------------
+
+/**
+ * Display current DIR path.
+ */
+VOID CustomPWD(){
+    LPSTR lpPath[MAX_PATH] = {0};
+
+    DWORD dwPath = GetCurrentDirectoryA(MAX_PATH, lpPath);
+    if(dwPath != 0)
+        printf("%s\n", lpPath);
+}
+
+/**
+ * Check path validity.
+ */
+static BOOL IsValidPath(IN CHAR *cPath){
+    INT len = strlen(cPath);
+    if(len == 0 || cPath[0] == '\0')
+        return FALSE; 
+    
+    if(len >= MAX_PATH)
+        return FALSE;
+    
+    LPCSTR invalidChars = "\\:*?\"<>|";
+    if(strpbrk(cPath, invalidChars) != NULL)
+        return FALSE;
+    
+    DWORD dwAttributes = GetFileAttributes((LPCSTR)cPath);
+    if(dwAttributes != INVALID_FILE_ATTRIBUTES && (dwAttributes & FILE_ATTRIBUTE_DIRECTORY))
+        return TRUE;
+    
+    return FALSE;
+}
+
+/**
+ * Change current directory.
+ */
+VOID Cd(IN CHAR *cPath){
+    if(!IsValidPath(cPath) || !SetCurrentDirectoryA((LPCSTR)cPath)){
+        printf("[!] Path incorrect.\n");
+        return;
+    }
+}
+
 
 /**
  * Clearing console = BUILTIN CLS.
@@ -45,14 +90,13 @@ VOID ClearConsole() {
  * Ending program.
  */
 VOID ExitSeverus(){
+    printf("$ exiting severus. bye...\n");
     if(!TerminateProcess(GetCurrentProcess(), 0)){
         exit(0);
     }
 }
 
-//----
-//BUILTINS COMMANDS.
-//----
+//----------------------------------------------------
 
 /**
  * Hash function name.
@@ -106,8 +150,10 @@ BOOL isBuiltin(IN CHAR *cStr){
 VOID InitBuiltins(){
     RtlSecureZeroMemory((PVOID)builtins, sizeof(builtins));
 
-    AddBuiltin("cls", ClearConsole, builtins);
+    AddBuiltin("clean", ClearConsole, builtins);
     AddBuiltin("exit", ExitSeverus, builtins);
     AddBuiltin("history", ShowHistory, builtins);
+    AddBuiltin("pwd", CustomPWD, builtins);
+    AddBuiltin("cd", Cd, builtins);
 }
 
