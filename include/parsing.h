@@ -1,5 +1,6 @@
 #pragma once
 #include "global.h"
+#include "libft.h"
 
 /**
  * Identifies tokens.
@@ -23,3 +24,7 @@ typedef struct TOKEN {
     ETOKENTYPE type;
     struct TOKEN *next;
 } TOKEN, *PTOKEN;
+
+//functions
+VOID Lexer(IN CHAR *input, IN OUT PTOKEN *tokens);
+VOID FreeTokens(IN PTOKEN tokens);

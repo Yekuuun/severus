@@ -5,7 +5,7 @@
  * @param args => args list.
  */
 VOID Echo(IN CHAR **args){
-    DWORD dwSize = GetArrayCharSize(args);
+    DWORD dwSize = Ft_CharArraySize(args);
     if(dwSize == 0 || dwSize == 1)
         return;
 

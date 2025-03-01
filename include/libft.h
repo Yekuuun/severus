@@ -2,4 +2,5 @@
 #include "global.h"
 
 //FT_STR.
-DWORD GetArrayCharSize(IN CHAR **tab);
+DWORD Ft_CharArraySize(IN CHAR **tab);
+CHAR *Ft_Strndup(CHAR *s, SIZE_T n);

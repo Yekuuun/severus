@@ -36,19 +36,25 @@ static VOID DisplayShellHeader(){
     Pwd();
 }
 
-
 /**
  * Start shell program.
  */
 VOID RunShell(){
+
+    //tokens.
+    PTOKEN pTokens = NULL;
+
+    //history.
     PCOMMANDHISTORY pHistory = InitializeHistory(MAX_HISTORY);
     if(pHistory == NULL){
         printf("[!] Error initializing SEVERUS.\n");
         return;
     }
 
+    //init builtins commands.
     InitBuiltins();
 
+    //clean console.
     Clean();
     CHAR cBuffer[MAX_TOKENS_LEN] = {0};
     
@@ -66,23 +72,19 @@ VOID RunShell(){
         if(fgets(cBuffer, sizeof(cBuffer), stdin) != NULL){
             cBuffer[strcspn(cBuffer, "\n")] = '\0';
 
-            CHAR *args[MAX_TOKENS_LEN] = {0};
-            CHAR *token = strtok(cBuffer, " ");
-            if(!token) continue;
+            //free tokens.
+            if (pTokens) {
+                FreeTokens(pTokens);
+                pTokens = NULL;
+            }
 
-            args[0] = token;
-            DWORD i = 1;
-            while ((token = strtok(NULL, " ")) && i < MAX_TOKENS_LEN - 1) {
-                args[i++] = token;
-            }
-            args[i] = NULL;
+            //lex.
+            Lexer(cBuffer, &pTokens);
 
-            if(isBuiltin(args[0])){
-                ExecBuiltin(args);
-            }
-            else {
-                printf("%s\n", args[0]);
-            }
+            //parse.
+            //TO DO.
+
+            // ExecBuiltin(args);
 
             //-------------------------------
             AddToHistory(pHistory, cBuffer);
@@ -93,6 +95,11 @@ VOID RunShell(){
         }
     }
     
-    FreeHistory(pHistory);
+    if(pTokens)
+        FreeTokens(pTokens);
+    
+    if(pHistory)
+        FreeHistory(pHistory);
+
     return;
 }
