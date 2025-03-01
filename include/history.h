@@ -24,4 +24,4 @@ typedef struct COMMANDSHISTORY {
 PCOMMANDHISTORY InitializeHistory(IN INT maxSize);
 VOID AddToHistory(IN PCOMMANDHISTORY pHistory, IN LPCSTR pCmd);
 VOID FreeHistory(IN PCOMMANDHISTORY pHistory);
-VOID ShowHistory();
+VOID History();

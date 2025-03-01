@@ -2,139 +2,12 @@
  * Author : Yekuuun
  * Github : https://github.com/yekuuun
  * 
- * Notes  : provide all pre built shell commands.
+ * Notes  : Provide base builtin commands handling.
  */
 
 #include "builtin.h"
 
 static PBUILTINS builtins[HASH_TABLE_BUILTINS_SIZE] = {0};
-static CHAR previousDir[MAX_PATH] = "";
-
-//---------BUILTIN FUNCTIONS------------
-
-/**
- * Display current DIR path.
- */
-VOID CustomPWD(){
-    LPSTR lpPath = (LPSTR)malloc(MAX_PATH * sizeof(char));
-    if(lpPath == NULL)
-        return;
-
-    DWORD dwPath = GetCurrentDirectoryA(MAX_PATH, lpPath);
-    if(dwPath != 0)
-        printf("%s\n", lpPath);
-}
-
-/**
- * Check path validity.
- */
-static BOOL IsValidPath(IN CHAR *cPath){
-    SIZE_T len = strlen(cPath);
-    if(len == 0 || cPath[0] == '\0')
-        return FALSE; 
-    
-    if(len >= MAX_PATH)
-        return FALSE;
-    
-    LPCSTR invalidChars = "\\:*?\"<>|";
-    if(strpbrk(cPath, invalidChars) != NULL)
-        return FALSE;
-    
-    DWORD dwAttributes = GetFileAttributes((LPCSTR)cPath);
-    if(dwAttributes != INVALID_FILE_ATTRIBUTES && (dwAttributes & FILE_ATTRIBUTE_DIRECTORY))
-        return TRUE;
-    
-    return FALSE;
-}
-
-/**
- * Change current directory.
- */
-VOID Cd(IN CHAR **args){
-    CHAR cNewPath[MAX_PATH] = {0};
-    CHAR currentDir[MAX_PATH] = {0};
-
-    if (!GetCurrentDirectoryA(MAX_PATH, currentDir))
-        return;
-
-    if (args[1] == NULL) {
-        CHAR *home = getenv("USERPROFILE");
-        if (!home) 
-            return;
-        
-        strncpy(cNewPath, home, MAX_PATH);
-        cNewPath[MAX_PATH - 1] = '\0';
-    } 
-    else if (strcmp(args[1], "..") == 0) {
-        CHAR parentDir[MAX_PATH] = {0};
-        strncpy(parentDir, currentDir, MAX_PATH);
-        parentDir[MAX_PATH - 1] = '\0';
-
-        CHAR *lastSlash = strrchr(parentDir, '\\');
-        if (lastSlash) {
-            *lastSlash = '\0';
-        }
-        strncpy(cNewPath, parentDir, MAX_PATH);
-    } 
-    else {
-        if (!GetFullPathNameA(args[1], MAX_PATH, cNewPath, NULL)) {
-            printf("[!] Error resolving path '%s'.\n", args[1]);
-            return;
-        }
-    }
-
-    if (IsValidPath(cNewPath) || !SetCurrentDirectoryA(cNewPath)) {
-        printf("[!] Incorrect path...\n");
-        return;
-    }
-
-    strncpy(previousDir, currentDir, MAX_PATH);
-    previousDir[MAX_PATH - 1] = '\0';
-}
-
-
-/**
- * Clearing console = BUILTIN CLS.
- */
-VOID ClearConsole() {
-    HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hStdOut == NULL)
-        return;
-
-    DWORD dwMode = 0;
-    if (!GetConsoleMode(hStdOut, &dwMode))
-        return;
-
-    const DWORD dwOriginalMode = dwMode;
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-    if (!SetConsoleMode(hStdOut, dwMode))
-        return;
-
-    DWORD dwWritten = 0;
-    PCWSTR pwSeq = L"\x1b[2J\x1b[H";  // Efface et remet le curseur en haut
-
-    if (!WriteConsoleW(hStdOut, pwSeq, (DWORD)wcslen(pwSeq), &dwWritten, NULL)) {
-        SetConsoleMode(hStdOut, dwOriginalMode);
-        return;
-    }
-
-    SetConsoleMode(hStdOut, dwOriginalMode);
-}
-
-//------
-
-/**
- * Ending program.
- */
-VOID ExitSeverus(){
-    printf("$ exiting severus. bye...\n");
-    if(!TerminateProcess(GetCurrentProcess(), 0)){
-        exit(0);
-    }
-}
-
-//----------------------------------------------------
 
 /**
  * Hash function name.
@@ -186,10 +59,10 @@ BOOL isBuiltin(IN CHAR *cStr){
  * Initialize builtins commands.
  */
 VOID InitBuiltins(){
-    AddBuiltin("clean", ClearConsole, builtins);
-    AddBuiltin("exit", ExitSeverus, builtins);
-    AddBuiltin("history", ShowHistory, builtins);
-    AddBuiltin("pwd", CustomPWD, builtins);
+    AddBuiltin("clean", Clean, builtins);
+    AddBuiltin("exit", Exit, builtins);
+    AddBuiltin("history", History, builtins);
+    AddBuiltin("pwd", Pwd, builtins);
     AddBuiltin("cd", Cd, builtins);
 }
 

@@ -12,10 +12,11 @@ typedef struct BUILTINS {
 
 //FUNCTIONS.
 VOID InitBuiltins();
-VOID ExitSeverus();
 VOID ExecBuiltin(IN CHAR **args);
 BOOL isBuiltin(IN CHAR *cStr);
 
 //builtins
-VOID ClearConsole();
-VOID CustomPWD();
+VOID Clean();
+VOID Exit(IN CHAR **args);
+VOID Pwd();
+VOID Cd(IN CHAR **args);

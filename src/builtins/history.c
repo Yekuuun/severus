@@ -94,7 +94,7 @@ VOID FreeHistory(IN PCOMMANDHISTORY pHistory){
 /**
  * Show inner history commands.
  */
-VOID ShowHistory(){
+VOID History(){
     if (pHistory == NULL || pHistory->size == 0)
         return;
 

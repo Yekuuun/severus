@@ -25,7 +25,7 @@ static VOID DisplayUsername(){
  */
 static VOID DisplayShellHeader(){
     DisplayUsername();
-    CustomPWD();
+    Pwd();
 }
 
 
@@ -41,13 +41,13 @@ VOID RunShell(){
 
     InitBuiltins();
 
-    ClearConsole();
+    Clean();
     CHAR cBuffer[MAX_TOKENS_LEN] = {0};
     
     //setting up listener.
     if(!SetConsoleCtrlHandler(HandleCtrlC, TRUE)){
         FreeHistory(pHistory);
-        ExitSeverus();
+        exit(1);
     }
 
     //looping.
