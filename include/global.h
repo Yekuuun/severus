@@ -8,4 +8,5 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <string.h>
-#include <conio.h>
+
+#define MAX_TOKENS_LEN 100

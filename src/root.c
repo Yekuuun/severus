@@ -1,3 +1,10 @@
+/**
+ * Author : yekuuun
+ * Github : https://github.com/yekuuun
+ * 
+ * Notes  : Entry point of severus.
+ */
+
 #include "root.h"
 
 static volatile int KEEP_RUNNING = 1;

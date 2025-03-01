@@ -1,7 +1,7 @@
 #pragma once
 #include "global.h"
 #include "history.h"
-#include "utils.h"
+#include "libft.h"
 
 #define HASH_TABLE_BUILTINS_SIZE 10
 
