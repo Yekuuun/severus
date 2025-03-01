@@ -64,6 +64,7 @@ VOID InitBuiltins(){
     AddBuiltin("history", History, builtins);
     AddBuiltin("pwd", Pwd, builtins);
     AddBuiltin("cd", Cd, builtins);
+    AddBuiltin("echo", Echo, builtins);
 }
 
 

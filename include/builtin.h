@@ -1,6 +1,7 @@
 #pragma once
 #include "global.h"
 #include "history.h"
+#include "utils.h"
 
 #define HASH_TABLE_BUILTINS_SIZE 10
 
@@ -20,3 +21,4 @@ VOID Clean();
 VOID Exit(IN CHAR **args);
 VOID Pwd();
 VOID Cd(IN CHAR **args);
+VOID Echo(IN CHAR **args);
