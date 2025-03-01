@@ -5,6 +5,7 @@ static CHAR previousDir[MAX_PATH] = "";
 
 /**
  * Check path validity.
+ * @param cPath => path to file
  */
 static BOOL IsValidPath(IN CHAR *cPath){
     SIZE_T len = strlen(cPath);
@@ -27,6 +28,7 @@ static BOOL IsValidPath(IN CHAR *cPath){
 
 /**
  * Change current directory.
+ * @param args => args
  */
 VOID Cd(IN CHAR **args){
     CHAR cNewPath[MAX_PATH] = {0};

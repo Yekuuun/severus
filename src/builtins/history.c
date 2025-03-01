@@ -11,6 +11,7 @@ static PCOMMANDHISTORY pHistory = NULL;
 
 /**
  * Initialize command history.
+ * @param maxSize => max size for the history list.
  */
 PCOMMANDHISTORY InitializeHistory(IN INT maxSize){
     pHistory = (PCOMMANDHISTORY)malloc(sizeof(COMMANDSHISTORY));
@@ -26,6 +27,8 @@ PCOMMANDHISTORY InitializeHistory(IN INT maxSize){
 
 /**
  * Add command to history.
+ * @param pHistory => ptr to history list 
+ * @param pCmd => cmd to add to history list.
  */
 VOID AddToHistory(IN PCOMMANDHISTORY pHistory, IN LPCSTR pCmd){
     if(pHistory == NULL)
@@ -69,6 +72,7 @@ VOID AddToHistory(IN PCOMMANDHISTORY pHistory, IN LPCSTR pCmd){
 
 /**
  * Free struct.
+ * @param pHistory => list to history.
  */
 VOID FreeHistory(IN PCOMMANDHISTORY pHistory){
     if (pHistory == NULL) return;

@@ -2,6 +2,7 @@
 
 /**
  * main exit function.
+ * @param args => args for exit command.
  */
 VOID Exit(IN CHAR **args){
     INT EXIT_CODE = 0;

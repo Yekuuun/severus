@@ -2,6 +2,7 @@
 
 /**
  * Echo command.
+ * @param args => args list.
  */
 VOID Echo(IN CHAR **args){
     DWORD dwSize = GetArrayCharSize(args);

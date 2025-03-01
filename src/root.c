@@ -11,6 +11,7 @@ static volatile int KEEP_RUNNING = 1;
 
 /**
  * Handling CTRL-C events.
+ * @param dwType => type of signal.
  */
 static BOOL WINAPI HandleCtrlC(IN DWORD dwType){
     return dwType == CTRL_C_EVENT;
