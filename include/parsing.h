@@ -25,6 +25,22 @@ typedef struct TOKEN {
     struct TOKEN *next;
 } TOKEN, *PTOKEN;
 
+
+/**
+ * Command struct => AST.
+ */
+typedef struct COMMAND {
+    CHAR **args;
+    DWORD argc;
+    CHAR *inputFile;
+    CHAR *outputFile;
+    DWORD append;
+    struct COMMAND *next;
+} COMMAND, *PCOMMAND;
+
 //functions
 VOID Lexer(IN CHAR *input, IN OUT PTOKEN *tokens);
 VOID FreeTokens(IN PTOKEN tokens);
+
+PCOMMAND ParseTokens(IN PTOKEN pTokens);
+VOID FreeCommands(IN PCOMMAND pCommands);

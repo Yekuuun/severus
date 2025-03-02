@@ -40,12 +40,12 @@ static VOID DisplayShellHeader(){
  * Start shell program.
  */
 VOID RunShell(){
-
-    //tokens.
-    PTOKEN pTokens = NULL;
+    PTOKEN pTokens            = NULL;
+    PCOMMAND pCommands        = NULL;
+    PCOMMANDHISTORY pHistory  = NULL;
 
     //history.
-    PCOMMANDHISTORY pHistory = InitializeHistory(MAX_HISTORY);
+    pHistory = InitializeHistory(MAX_HISTORY);
     if(pHistory == NULL){
         printf("[!] Error initializing SEVERUS.\n");
         return;
@@ -78,13 +78,24 @@ VOID RunShell(){
                 pTokens = NULL;
             }
 
+            //free commands.
+            if(pCommands){
+                FreeCommands(pCommands);
+                pCommands = NULL;
+            }
+
             //lex.
             Lexer(cBuffer, &pTokens);
 
             //parse.
-            //TO DO.
+            pCommands = ParseTokens(pTokens);
 
-            // ExecBuiltin(args);
+            if(isBuiltin(pCommands->args[0])) {
+                ExecBuiltin(pCommands->args); //exec builtin.
+            }
+            else {
+                printf("%s\n", cBuffer);
+            }
 
             //-------------------------------
             AddToHistory(pHistory, cBuffer);
@@ -94,7 +105,7 @@ VOID RunShell(){
             KEEP_RUNNING = 0;
         }
     }
-    
+
     if(pTokens)
         FreeTokens(pTokens);
     

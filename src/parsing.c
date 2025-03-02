@@ -124,3 +124,80 @@ VOID FreeTokens(IN PTOKEN tokens) {
     }
 }
 
+//--------
+//PARSING
+
+/**
+ * Parse tokens into a command base struct for later execution.
+ * @param pTokens => PTR to PTOKEN struct (AST)
+ */
+PCOMMAND ParseTokens(IN PTOKEN pTokens){
+    if(pTokens == NULL)
+        return NULL;
+    
+    PCOMMAND head     = NULL;
+    PCOMMAND current  = NULL;
+
+    while(pTokens){
+        if(pTokens->type == TOKEN_WORD){
+            if(!current){
+                current = (PCOMMAND)malloc(sizeof(COMMAND));
+                RtlSecureZeroMemory(current, sizeof(COMMAND));
+                head = current;
+            }
+
+            current->args = realloc(current->args, sizeof(CHAR*) * (current->argc + 2));
+            current->args[current->argc] = strdup(pTokens->cmd);
+            current->args[++(current->argc)] = NULL;
+        }
+        else if (pTokens->type == TOKEN_PIPE) {
+            current->next = (PCOMMAND)malloc(sizeof(COMMAND));
+            RtlSecureZeroMemory(current, sizeof(COMMAND));
+            current = current->next;
+        } 
+        else if (pTokens->type == TOKEN_REDIRECT_OUT || pTokens->type == TOKEN_APPEND) {
+            pTokens = pTokens->next;
+            if (pTokens) {
+                current->outputFile = strdup(pTokens->cmd);
+                current->append = (pTokens->type == TOKEN_APPEND);
+            }
+        }
+        else if(pTokens->type == TOKEN_REDIRECT_IN){
+            pTokens = pTokens->next;
+            if(pTokens)
+                current->inputFile = strdup(pTokens->cmd);
+        }
+
+        pTokens = pTokens->next;
+    }
+
+    return head;
+}
+
+/**
+ * FREE MEMORY.
+ * @param pCommands => ptr to PCOMMAND struct
+ */
+VOID FreeCommands(IN PCOMMAND pCommands){
+    if(pCommands == NULL)
+        return;
+    
+    while(pCommands){
+        PCOMMAND next = pCommands->next;
+
+        for(DWORD i = 0; i < pCommands->argc; i++)
+            free(pCommands->args[i]);
+        
+        free(pCommands->args);
+
+        if(pCommands->inputFile)
+            free(pCommands->inputFile);
+        
+        if(pCommands->outputFile)
+            free(pCommands->outputFile);
+        
+        free(pCommands);
+
+        pCommands = next;
+    }
+}

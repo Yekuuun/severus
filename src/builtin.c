@@ -60,6 +60,8 @@ BOOL isBuiltin(IN CHAR *cStr){
  */
 VOID InitBuiltins(){
     AddBuiltin("clean", Clean, builtins);
+    AddBuiltin("clear", Clean, builtins);
+    AddBuiltin("cls", Clean, builtins);
     AddBuiltin("exit", Exit, builtins);
     AddBuiltin("history", History, builtins);
     AddBuiltin("pwd", Pwd, builtins);
