@@ -29,11 +29,25 @@ static VOID DisplayUsername(){
 }
 
 /**
+ * Set cmd color 
+ * @param color => WORD color
+ */
+static VOID SetBashColor(IN WORD color){
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if(hConsole)
+        SetConsoleTextAttribute(hConsole, color);
+}
+
+/**
  * Display shell header.
  */
 static VOID DisplayShellHeader(){
+    SetBashColor(10);
     DisplayUsername();
     Pwd();
+
+    //go back to main color.
+    SetBashColor(7);
 }
 
 /**

@@ -3,12 +3,12 @@
 #include "history.h"
 #include "libft.h"
 
-#define HASH_TABLE_BUILTINS_SIZE 10
+#define HASH_TABLE_BUILTINS_SIZE 20
 
 //----
 typedef struct BUILTINS {
     CHAR *cName;
-    void (*func)(char **args);
+    VOID (*func)(CHAR **args);
 } BUILTINS, *PBUILTINS;
 
 //FUNCTIONS.
