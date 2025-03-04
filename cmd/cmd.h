@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HASH_TABLE_ARGS_SIZE 100
+#define HASH_TABLE_ARGS_SIZE 30
 
 //STRUCTS.
 typedef struct ARGSHANDLER {
@@ -55,24 +55,6 @@ __forceinline VOID AddArg(IN CHAR *cName, IN VOID(*func)(CHAR **), IN PARGSHANDL
 }
 
 /**
- * Free memory for table.
- * @param pArgsTable => PTR to ARGSHANDLER table.
- */
-__forceinline VOID FreeArgs(IN PARGSHANDLER *pArgsTable){
-    if(!pArgsTable)
-        return;
-
-    for(DWORD i = 0; i < HASH_TABLE_ARGS_SIZE; i++){
-        PARGSHANDLER current = pArgsTable[i];
-        if(current){
-            free(current->cOption);
-            free(current);
-            pArgsTable[i] = NULL;
-        }
-    }
-}
-
-/**
  * Check if exist in argument table. 
  * @param cArg => char to find
  * @param pArgs => ptr to ARGSHANDER table.
@@ -80,7 +62,6 @@ __forceinline VOID FreeArgs(IN PARGSHANDLER *pArgsTable){
 __forceinline BOOL isArgs(IN CHAR *cArg, IN PARGSHANDLER *pArgs){
     UINT index = HashFunction(cArg);
     PARGSHANDLER pArg = pArgs[index];
-
     return pArgs[index] != NULL && (strcmp(pArgs[index]->cOption, cArg) == 0);
 }
 
@@ -98,4 +79,29 @@ __forceinline VOID ExecOption(IN CHAR **args, IN PARGSHANDLER *pTable){
     else {
         printf("$ command not found.\n");
     }
+}
+
+//-------
+
+//UTILS.
+
+/**
+ * Check if its an option.
+ */
+__forceinline BOOL IsOption(IN CHAR *arg){
+    return (arg[0] == '-');
+}
+
+/**
+ * Check if value is a valid path.
+ */
+__forceinline BOOL IsPath(IN CHAR *arg){
+    if(IsOption(arg))
+        return FALSE;
+    
+    if (strncmp(arg, "./", 2) == 0 || strncmp(arg, "../", 3) == 0)
+        return TRUE;
+    
+    if ((strlen(arg) > 2) && arg[1] == ':' && (arg[2] == '\\' || arg[2] == '/'))
+        return TRUE;
 }
