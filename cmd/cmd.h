@@ -11,9 +11,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HASH_TABLE_ARGS_SIZE 30
-
 //STRUCTS.
+
+#define HASH_TABLE_ARGS_SIZE 30
+#define MAX_TREE_DEPTH 20
+
+//TREE STRUCT.
+typedef struct {
+    BOOL isLastChild[MAX_TREE_DEPTH];
+    INT fileCount;
+    INT dirCount;
+} TreeContext;
+
+typedef TreeContext* PTreeContext;
+
+//OPTION HANDLING.
 typedef struct ARGSHANDLER {
     CHAR *cOption;
     VOID (*func)(CHAR **args);
@@ -104,4 +116,34 @@ __forceinline BOOL IsPath(IN CHAR *arg){
     
     if ((strlen(arg) > 2) && arg[1] == ':' && (arg[2] == '\\' || arg[2] == '/'))
         return TRUE;
+}
+
+/**
+ * Base function to handle path.
+ * @param path => path provided as tree arg.
+ */
+__forceinline BOOL IsValidPath(IN const char *path){
+    int len = strlen(path);
+
+    if(len == 0 || path[0] == '\0')
+        return FALSE;
+    
+    if(len >= MAX_PATH){
+        printf("$ Path too long.\n");
+        return FALSE;
+    }
+
+    const char* invalidChars = "\\:*?\"<>|";
+    if(strpbrk(path, invalidChars) != NULL){
+        printf("$ Invalid caracters. \n");
+        return FALSE;
+    }
+
+    //check if path exist.
+    DWORD dwAttrib = GetFileAttributes((LPCSTR)path);
+    if(dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
+        return TRUE;
+    
+    printf("$ Not a valid path provided.\n");
+    return FALSE;
 }
