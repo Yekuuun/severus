@@ -5,7 +5,9 @@
  * Notes  : My implementation of tree command.
  */
 
- #include "cmd.h"
+#include "cmd.h"
+
+static PARGSHANDLER options[2] = { NULL };
 
 /**
  * Setting up console for display.
@@ -95,54 +97,89 @@ VOID Tree(IN const char* path, IN INT level, IN PTreeContext ctx){
     FindClose(hFind);
 }
 
+/**
+ * Show helper commands.
+ */
+static VOID ShowHelper(){
+    printf("TREE COMMAND :\n");
+    printf("\t Show tree representation of files & folders\n");
+
+    printf("\n");
+    printf("SYNOPSIS :\n");
+    printf("\t tree [PATH]....\n");
+
+    printf("DESCRIPTION : \n");
+    printf("\t Show tree representation of files & folders (the current dir by default).\n");
+
+    printf("\n\n");
+    return;
+}
+
+/**
+ * Initializing arguments.
+ */
+static VOID InitializeArgs(){
+    AddArg("-h", ShowHelper, options);
+    AddArg("--help", ShowHelper, options);
+}
+
 //entry point.
 int main(int argc, char *argv[]){
     if(argc > 2){
         printf("$ tree accept only one argument : <path_to_folder>\n");
         return EXIT_FAILURE;
     }
-
+    
     CHAR* path = NULL;
 
-    if(argc == 2) {
-        const CHAR* arg = argv[1];
-        
-        //check validity.
-        if(!IsValidPath(arg))
-            return EXIT_FAILURE;
+    //initializing arguments.
+    InitializeArgs(options);
 
-        INT argLen = strlen(arg);
-        path = malloc((argLen + 1) * sizeof(CHAR));
-
-        if(path == NULL){
-            printf("[!] Error allocating memory.\n");
-            return EXIT_FAILURE;
-        }
-        
-        memcpy(path, arg, argLen);
-        path[argLen] = '\0';
+    if(argv[1] != NULL && isArgs(argv[1], options)){
+        ExecOption(++argv, options);
     }
     else {
-        path = malloc(MAX_TREE_DEPTH * sizeof(char));
-        if(path == NULL)
-            return EXIT_FAILURE;
 
-        path = strdup(".");
-
-        DWORD len = GetCurrentDirectory(MAX_TREE_DEPTH, path);
-        if(len == 0)
-            return EXIT_FAILURE;
+        if(argc == 2) {
+            const CHAR* arg = argv[1];
+            
+            //check validity.
+            if(!IsValidPath(arg))
+                return EXIT_FAILURE;
+    
+            INT argLen = strlen(arg);
+            path = malloc((argLen + 1) * sizeof(CHAR));
+    
+            if(path == NULL){
+                printf("[!] Error allocating memory.\n");
+                return EXIT_FAILURE;
+            }
+            
+            memcpy(path, arg, argLen);
+            path[argLen] = '\0';
+        }
+        else {
+            path = malloc(MAX_TREE_DEPTH * sizeof(char));
+            if(path == NULL)
+                return EXIT_FAILURE;
+    
+            path = strdup(".");
+    
+            DWORD len = GetCurrentDirectory(MAX_TREE_DEPTH, path);
+            if(len == 0)
+                return EXIT_FAILURE;
+        }
+    
+        SetupConsole();
+        TreeContext ctx = {0};
+        RtlSecureZeroMemory(&ctx, sizeof(TreeContext));
+    
+        printf("%s\n", path);
+        Tree(path, 0, &ctx);
+    
+        printf("\n");
+        printf("%d directories, %d files\n", ctx.dirCount, ctx.fileCount);
     }
-
-    SetupConsole();
-    TreeContext ctx = {0};
-    RtlSecureZeroMemory(&ctx, sizeof(TreeContext));
-
-    printf("%s\n", path);
-    Tree(path, 0, &ctx);
-
-    printf("\n");
-    printf("%d directories, %d files\n", ctx.dirCount, ctx.fileCount);
 
 __END:
     if(path)
